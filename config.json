@@ -1,0 +1,26 @@
+{
+  "initial_equity_usd": 10000,
+  "leverage_per_side": 8,
+  "daily_entry_fraction": 0.5,
+  "entry_windows_vn": {
+    "2": [12, 15, 18],
+    "3": [9, 12, 15]
+  },
+  "entry_delta": [0.07, 0.10],
+  "roll_delta": [0.14, 0.16],
+  "exit1_price_btc": 0.0001,
+  "exit2_thresholds": [
+    {"dte_below": 7, "pct": 0.03},
+    {"dte_below": 8, "pct": 0.04},
+    {"dte_below": null, "pct": 0.05}
+  ],
+  "roll_block_1h_range": 0.02,
+  "roll_min_dte": 2,
+  "max_exit2_per_cycle": 2,
+  "fee_btc_per_contract": 0.0003,
+  "fee_cap_pct_of_price": 0.125,
+  "delivery_fee_pct": 0.00015,
+  "qty_step": 0.1,
+  "flag_near_exit2_buffer": 0.01,
+  "flag_spot_move_pct": 0.03
+}
