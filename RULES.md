@@ -32,7 +32,7 @@ Paper trading thuần: chỉ đọc data Deribit public API, không đặt lện
 | ID | Rule |
 |---|---|
 | R-X1 | Premium về **0.0001 BTC** (ask ≤ 0.0001, hoặc không có ask và mark ≤ 0.0001) thì mua lại để đóng. |
-| R-X2 | Khoảng cách spot tới strike tính theo strike. **Call**: spot ≥ K × (1 − x). **Put**: spot ≤ K × (1 + x). Ngưỡng x: **3%** khi DTE < 7, **4%** khi 7 ≤ DTE < 8, **5%** khi DTE ≥ 8. Chỉ xét **spot tại lúc chạy**, fill theo giá tại lần chạy đó. Ví dụ Call 90k, DTE 6: spot ≥ 87.3k thì exit. |
+| R-X2 | Khoảng cách spot tới strike tính theo strike. **Call**: spot ≥ K × (1 − x). **Put**: spot ≤ K × (1 + x). Ngưỡng x: **3.5%** khi DTE < 7, **4%** khi 7 ≤ DTE < 8, **5%** khi DTE ≥ 8. Chỉ xét **spot tại lúc chạy**, fill theo giá tại lần chạy đó. Ví dụ Call 90k, DTE 6: spot ≥ 86.85k thì exit. |
 | — | Expiry: settle theo delivery price của Deribit. |
 
 ## Roll

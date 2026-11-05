@@ -446,7 +446,7 @@ def process_exits(state, mkt, cfg, log):
         hit, pct, level = exit2_trigger(p, cfg, mkt.index)
         if hit:
             rec = close_lot(state, mkt, cfg, log, p, "R-X2", "rule",
-                            f"Spot {mkt.index:,.0f} vượt ngưỡng {pct:.0%} của strike {p['strike']:,.0f} "
+                            f"Spot {mkt.index:,.0f} vượt ngưỡng {pct:.1%} của strike {p['strike']:,.0f} "
                             f"(level {level:,.0f}, DTE {dte_days(p['expiry_ts']):.2f})")
             exit2_events.setdefault((p["cycle"], p["side"]), []).append((rec, p))
 

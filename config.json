@@ -10,7 +10,7 @@
   "roll_delta": [0.14, 0.16],
   "exit1_price_btc": 0.0001,
   "exit2_thresholds": [
-    {"dte_below": 7, "pct": 0.03},
+    {"dte_below": 7, "pct": 0.035},
     {"dte_below": 8, "pct": 0.04},
     {"dte_below": null, "pct": 0.05}
   ],
