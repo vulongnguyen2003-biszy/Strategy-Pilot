@@ -1,0 +1,26 @@
+{
+ "version": 1,
+ "created_utc": "2026-11-05T16:29:29Z",
+ "initial_equity_usd": 10000,
+ "cash_usd": 10000,
+ "fees_paid_usd": 0.0,
+ "realized_pnl_usd": 0.0,
+ "next_lot": 1,
+ "positions": [],
+ "cycles": {},
+ "entries": {},
+ "pending_suggestions": [],
+ "overrides": {
+  "paused": {
+   "call": false,
+   "put": false
+  }
+ },
+ "last_run_id": "R-261105-2329",
+ "last_run_utc": "2026-11-05T16:29:29Z",
+ "last_obs": {
+  "index": 76767.36,
+  "ts_utc": "2026-11-05T16:29:29Z",
+  "equity_usd": 10000.0
+ }
+}

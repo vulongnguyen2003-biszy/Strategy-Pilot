@@ -1,0 +1,1 @@
+{"type": "obs", "run_id": "R-261105-2329", "ts_utc": "2026-11-05T16:29:29Z", "ts_vn": "2026-11-05 23:29", "index": 76767.36, "dvol": 39.96, "last_1h": {"o": 78230.0, "h": 78230.0, "l": 75475.5, "c": 75959.5}, "last_1h_range_pct": 3.65, "positions": [], "equity_usd": 10000.0, "leverage_used": {"call": 0.0, "put": 0.0}, "std_margin_est_pct": 0.0}
