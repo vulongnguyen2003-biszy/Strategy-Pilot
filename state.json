@@ -55,11 +55,11 @@
    "put": false
   }
  },
- "last_run_id": "R-261106-1010",
- "last_run_utc": "2026-11-06T03:10:20Z",
+ "last_run_id": "R-261106-1210",
+ "last_run_utc": "2026-11-06T05:10:48Z",
  "last_obs": {
-  "index": 76083.01,
-  "ts_utc": "2026-11-06T03:10:20Z",
-  "equity_usd": 9916.57
+  "index": 75512.49,
+  "ts_utc": "2026-11-06T05:10:48Z",
+  "equity_usd": 9844.54
  }
 }
