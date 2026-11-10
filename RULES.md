@@ -38,9 +38,9 @@ Paper trading thuần: chỉ đọc data Deribit public API, không đặt lện
 ## Roll
 | ID | Rule |
 |---|---|
-| R-R1 | Sau **Exit 2** thì roll cùng side sang strike xa hơn có \|delta\| **0.14–0.16** (ưu tiên 0.15), dùng cùng expiry. Expiry +1 ngày (thứ 7) chỉ dùng khi đã được list. Khối lượng bằng khối lượng vừa exit. |
+| R-R1 | Sau **Exit 2** thì roll cùng side sang strike xa hơn có \|delta\| **0.14–0.16** (ưu tiên 0.15). Expiry roll được chọn trong: expiry thứ 6 của cycle, **+1 ngày (thứ 7)** hoặc **+2 ngày (chủ nhật)**, chỉ những expiry đã list và còn DTE ≥ 2. Ưu tiên expiry gần nhất có strike trong band delta. Lot roll vẫn thuộc cycle cũ. Khối lượng bằng khối lượng vừa exit. |
 | R-R2 | Nếu nến 1H đã đóng gần nhất có (High − Low) / Low ≥ **2%** thì chưa roll. Các lần chạy sau kiểm tra lại. |
-| R-R3 | Đang chờ roll mà DTE < **2** thì bỏ roll, vì momentum vẫn mạnh. |
+| R-R3 | Đang chờ roll mà **mọi** expiry roll được phép (thứ 6, thứ 7, chủ nhật) đều có DTE < **2** thì bỏ roll. Expiry còn DTE ≥ 2 nhưng chưa list thì chờ lần chạy sau. |
 | R-X2 | Roll leg cũng exit theo đúng R-X2. |
 | R-SL | **Dừng** side đó trong cycle sau **2 lần Exit 2** (entry 1 → exit 1 → roll 1 → exit 2). |
 

@@ -8,6 +8,7 @@
   },
   "entry_delta": [0.07, 0.10],
   "roll_delta": [0.14, 0.16],
+  "roll_expiry_offsets_days": [0, 1, 2],
   "exit1_price_btc": 0.0001,
   "exit2_thresholds": [
     {"dte_below": 7, "pct": 0.035},

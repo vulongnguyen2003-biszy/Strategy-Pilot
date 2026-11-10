@@ -469,6 +469,22 @@ def process_exits(state, mkt, cfg, log):
                                   "expiry_ts": recs[0][1]["expiry_ts"], "created_utc": ts_fields()["ts_utc"], "waits": 0}
 
 
+def roll_expiry_options(mkt, cfg, cycle, pr):
+    """Expiry được phép roll: thứ 6 của cycle + các offset ngày trong cfg (mặc định 0, 1, 2 → T6, T7, CN).
+    Không roll về expiry sớm hơn expiry của lot vừa exit. ts = None nếu Deribit chưa list."""
+    base = datetime.strptime(cycle, "%d%b%y").date()
+    out = []
+    for off in cfg.get("roll_expiry_offsets_days", [0]):
+        d = base + timedelta(days=off)
+        exp_dt = datetime(d.year, d.month, d.day, 8, tzinfo=timezone.utc)  # Deribit đáo hạn 08:00 UTC
+        if exp_dt.timestamp() * 1000 < pr["expiry_ts"] - 1:
+            continue
+        code = expiry_code(d)
+        ts = mkt.expiry_ts(code)
+        out.append({"code": code, "ts": ts, "dte": dte_days(ts or exp_dt.timestamp() * 1000)})
+    return out
+
+
 def process_rolls(state, mkt, cfg, log):
     for cycle, sides in state["cycles"].items():
         for side, cs in sides.items():
@@ -477,11 +493,19 @@ def process_rolls(state, mkt, cfg, log):
                 continue
             if state["overrides"]["paused"].get(side):
                 continue
-            dte = dte_days(pr["expiry_ts"])
-            if dte < cfg["roll_min_dte"]:
+            # R-R1/R-R3: expiry roll là thứ 6 của cycle, hoặc +1 (thứ 7), +2 (CN) ngày, chỉ những expiry còn DTE ≥ roll_min_dte
+            opts = roll_expiry_options(mkt, cfg, cycle, pr)
+            eligible = [o for o in opts if o["dte"] >= cfg["roll_min_dte"]]
+            if not eligible:
                 cs["pending_roll"] = None
                 log.add("flag", code="roll_cancelled", cycle=cycle, side=side,
-                        text=f"Bỏ roll: DTE {dte:.2f} < {cfg['roll_min_dte']} mà momentum chưa hạ (R-R3)")
+                        text=f"Bỏ roll: mọi expiry roll ({', '.join(o['code'] for o in opts)}) đều có "
+                             f"DTE < {cfg['roll_min_dte']} (R-R3)")
+                continue
+            listed = [o for o in eligible if o["ts"] is not None]
+            if not listed:
+                log.add("flag", code="cycle_not_listed", cycle=cycle, side=side,
+                        text=f"Chờ roll: expiry {', '.join(o['code'] for o in eligible)} chưa list trên Deribit")
                 continue
             c = mkt.last_closed_1h()
             rng = (c["h"] - c["l"]) / c["l"] if c else 0
@@ -494,7 +518,14 @@ def process_rolls(state, mkt, cfg, log):
                 else:
                     log.add("roll_wait", **rec)
                 continue
-            cands = mkt.candidates(side, pr["expiry"], cfg["roll_delta"], farther_than=pr["from_strike"])
+            # Ưu tiên expiry gần nhất có strike trong band delta; không có thì lấy strike gần band nhất của expiry gần nhất
+            cands, pick = [], None
+            for o in listed:
+                c_o = mkt.candidates(side, o["code"], cfg["roll_delta"], farther_than=pr["from_strike"])
+                if c_o and (not cands or (c_o[0]["in_band"] and not cands[0]["in_band"])):
+                    cands, pick = c_o, o
+                if cands and cands[0]["in_band"]:
+                    break
             if not cands:
                 log.add("flag", code="no_candidate", cycle=cycle, side=side, text="Không có strike để roll")
                 continue
@@ -504,7 +535,8 @@ def process_rolls(state, mkt, cfg, log):
                 log.add("flag", code="no_room", cycle=cycle, side=side, text="Hết room, không roll được")
                 continue
             lot = open_short(state, mkt, cfg, log, cands[0]["instrument"], qty, cycle, "roll", "R-R1", "rule",
-                             f"Roll sau exit 2 từ strike {pr['from_strike']:,.0f}, nến 1H H-L {rng:.2%}")
+                             f"Roll sau exit 2 từ strike {pr['from_strike']:,.0f} sang expiry {pick['code']} "
+                             f"(DTE {pick['dte']:.2f}), nến 1H H-L {rng:.2%}")
             if not cands[0]["in_band"]:
                 log.add("flag", code="delta_out_of_band", side=side,
                         text=f"Roll dùng {lot['instrument']} Δ{cands[0]['delta']} (ngoài band {cfg['roll_delta']})")
