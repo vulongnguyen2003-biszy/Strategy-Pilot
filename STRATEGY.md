@@ -67,6 +67,35 @@ R-X2 chỉ xét spot (index) tại lúc chạy và fill theo giá của lần ch
 
 Roll ở delta 0.15 sau khi đã bị đẩy ra là cách lấy lại premium đã mất, với strike vẫn nằm xa hơn strike cũ. Hai bộ lọc R-R2 và R-R3 để tránh roll khi momentum còn mạnh.
 
+### Chi tiết R-R3: bỏ roll khi DTE < 2
+**Cách engine xử lý.** Sau mỗi Exit 2 chưa chạm R-SL, engine tạo một **roll chờ** (`pending_roll`) cho cặp cycle/side đó. Roll chờ ghi lại khối lượng vừa exit, strike cũ và expiry. Mỗi lần chạy, engine xử lý roll chờ theo thứ tự:
+1. Side đang bị `pause` thì bỏ qua lần chạy này, roll chờ vẫn giữ nguyên.
+2. **Kiểm tra DTE trước:** nếu DTE của expiry roll < 2 ngày thì xóa roll chờ và ghi flag `roll_cancelled`.
+3. Chỉ khi DTE ≥ 2 mới xét R-R2 (nến 1H gần nhất có range ≥ 2% hay không).
+4. Qua cả hai bộ lọc thì mới tìm strike delta 0.15 và mở lot roll.
+
+**Mốc thời gian.** Option Deribit đáo hạn lúc 08:00 UTC thứ 6, tức 15:00 giờ VN. DTE < 2 nghĩa là từ **15:00 VN thứ 4** của tuần đáo hạn trở đi. Engine tính DTE liên tục theo giờ, không làm tròn theo ngày.
+
+**Ba tình huống dẫn tới bỏ roll:**
+- **Exit 2 xảy ra khi DTE đã < 2.** Trong cùng một lần chạy, engine xử lý exit xong rồi mới xử lý roll, nên roll chờ vừa tạo bị hủy ngay. Thực tế là Exit 2 từ trưa thứ 4 trở đi thì không bao giờ roll.
+- **Exit 2 xảy ra khi DTE ≥ 2, nhưng R-R2 chặn liên tục.** Nến 1H còn biến động mạnh qua nhiều lần chạy cho tới khi DTE tụt dưới 2, roll chờ hết hạn và bị hủy.
+- **Side bị pause lúc đang có roll chờ.** Khi resume mà DTE đã < 2, roll bị hủy ở lần chạy kế tiếp.
+
+**Hệ quả sau khi bỏ roll:**
+- Side đó **không còn vị thế nào trong cycle này**, vì đã có Exit 2 nên cũng không được entry thêm.
+- `exit2_count` không tăng và side không bị đánh dấu `stopped`. Việc dừng chỉ là hệ quả của việc không còn lệnh nào được phép mở.
+- Không ảnh hưởng tới **cycle tuần sau**. Khung entry thứ 4 và thứ 5 vẫn chạy bình thường cho expiry mới.
+
+**Lý do kinh tế:**
+- **Premium quá mỏng.** Còn dưới 2 ngày thì option delta 0.15 có giá trị thời gian nhỏ. Sau khi trừ phí khớp 0.0003 BTC/contract (trần 12.5% giá option) và spread bid/ask, phần premium thu thêm không bù được rủi ro.
+- **Gamma cao.** Sát expiry, delta thay đổi rất nhanh theo spot. Một strike delta 0.15 có thể thành 0.4–0.5 chỉ sau một nhịp 2–3%. Trong khi đó Exit 2 ở DTE < 7 có ngưỡng 3.5%, và lần chạy chỉ cách nhau khoảng 2 giờ.
+- **Momentum chưa hết.** Exit 2 nghĩa là spot vừa chạy mạnh về phía strike. Roll ngay vào cùng hướng trong 1–2 ngày cuối dễ dính Exit 2 lần nữa (R-SL), biến một lần cắt lỗ thành hai.
+- **Vốn đã sẵn cho chu kỳ mới.** Mốc DTE < 2 trùng với lúc bắt đầu entry chu kỳ tuần sau (thứ 4–5). Notional không dùng cho roll có thể dùng cho entry mới, ở DTE dài hơn và theta tốt hơn.
+
+**Ví dụ.** Cycle 13NOV26, put 70000 có lot đang mở:
+- Thứ 4 11/11, 14:10 VN, DTE ≈ 2.04, spot 72,400 ≤ 70,000 × 1.035 = 72,450 → Exit 2. Nến 1H vừa đóng có range 2.6% nên R-R2 chặn và roll chờ được giữ lại.
+- Lần chạy 16:10 VN, DTE ≈ 1.95 < 2 → roll bị hủy, flag `roll_cancelled`. Side put không còn gì trong cycle 13NOV26, nhưng khung 18h thứ 4 vẫn entry put cho cycle 20NOV26 như thường.
+
 ## 7. Vòng đời một tuần
 ```
 Thứ 4–5   entry chu kỳ tuần sau (2 × 50% cap mỗi side)
