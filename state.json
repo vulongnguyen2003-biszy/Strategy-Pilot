@@ -2,30 +2,11 @@
  "version": 1,
  "created_utc": "2026-11-05T16:29:29Z",
  "initial_equity_usd": 10000,
- "cash_usd": 10380.675074125,
- "fees_paid_usd": 44.617843875,
- "realized_pnl_usd": 0.0,
+ "cash_usd": 10372.465129,
+ "fees_paid_usd": 45.53006,
+ "realized_pnl_usd": 144.64005487500003,
  "next_lot": 3,
  "positions": [
-  {
-   "lot_id": "L-1",
-   "instrument": "BTC-13NOV26-83000-C",
-   "side": "call",
-   "strike": 83000.0,
-   "expiry": "13NOV26",
-   "expiry_ts": 1794556800000,
-   "qty": 1.0,
-   "entry_price_btc": 0.0023,
-   "entry_index": 75945.93,
-   "premium_usd": 174.68,
-   "entry_fee_usd": 21.83,
-   "entry_delta": 0.087,
-   "opened_utc": "2026-11-05T17:26:18Z",
-   "cycle": "13NOV26",
-   "leg": "initial",
-   "rule": "USER",
-   "source": "user"
-  },
   {
    "lot_id": "L-2",
    "instrument": "BTC-13NOV26-70000-P",
@@ -55,11 +36,11 @@
    "put": false
   }
  },
- "last_run_id": "R-261110-2216",
- "last_run_utc": "2026-11-10T15:16:00Z",
+ "last_run_id": "R-261111-0012",
+ "last_run_utc": "2026-11-10T17:12:51Z",
  "last_obs": {
-  "index": 74297.37,
-  "ts_utc": "2026-11-10T15:16:00Z",
-  "equity_usd": 10284.09
+  "index": 72977.29,
+  "ts_utc": "2026-11-10T17:12:51Z",
+  "equity_usd": 10131.64
  }
 }
